@@ -4,9 +4,11 @@ from dotenv import load_dotenv
 from discord import Intents, Client, Message
 from responses import get_response
 
-# STEP 0: LOAD OUR TOKEN FROM .env
+# STEP 0: LOAD OUR TOKEN AND CHANNEL ID FROM .env
 load_dotenv()
-TOKEN: Final[str] = os.getenv('DISCORD_TOKEN')
+TOKEN: Final[str] = str(os.getenv('DISCORD_TOKEN'))
+CHANNEL_ID_LISTEN: Final[int] = int(os.getenv('CHANNEL_ID_LISTEN'))
+CHANNEL_ID_SENDER: Final[int] = int(os.getenv('CHANNEL_ID_SENDER'))
 
 # STEP 1: BOT SETUP
 intents: Intents = Intents.default()
@@ -30,11 +32,12 @@ async def send_message(message: Message, user_message: str, channel_id: int) -> 
 @client.event
 async def on_ready() -> None:
     print(f'{client.user} is now running!')
+    print(f'Listening to channel: {client.get_channel(CHANNEL_ID_LISTEN)}')
 
 # STEP 4: HANDLING INCOMING MESSAGES
 @client.event
 async def on_message(message: Message) -> None:
-    if message.author == client.user or message.channel.id != 1288483003722629170:
+    if message.author == client.user or message.channel.id != CHANNEL_ID_LISTEN:
         return
     
     username: str = str(message.author)
@@ -42,7 +45,7 @@ async def on_message(message: Message) -> None:
     channel: str = str(message.channel)
 
     print(f'[{channel}] {username}: "{user_message}"')
-    await send_message(message, user_message, 1288483052107862037)
+    await send_message(message, user_message, CHANNEL_ID_SENDER)
 
 
 # STEP 5: MAIN ENTRY POINT
